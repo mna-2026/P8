@@ -31,7 +31,7 @@ jobs:
                 host: ${{ secrets.EC2_HOST }}
                 username: ubuntu
                 key: ${{ secrets.EC2_SSH_KEY }}
-                command_timeout: 15m
+                command_timeout: 30m
                 script: |
                     sudo apt update && sudo apt install -y docker.io
                     echo "sudo docker load -i scoring-model-api.tar"
