@@ -15,6 +15,10 @@ def one_hot_name_combiner(input_feature, category):
     return 'ONEHOT__' + input_feature + '__' + str(category)
 
 
+import __main__
+__main__.one_hot_name_combiner = one_hot_name_combiner
+
+
 # Load the selected model
 print('Loading model')
 with open(r'../data/model_step7.pkl', 'rb') as f:
