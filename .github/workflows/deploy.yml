@@ -1,4 +1,4 @@
-name: Test & deploy model
+name: Deploy model
 
 on:
     workflow_dispatch:
