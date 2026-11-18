@@ -1,0 +1,40 @@
+name: Test & deploy model
+
+on:
+    workflow_dispatch:
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v7
+            - name: Set up Python
+              uses: actions/setup-python@v7
+              with:
+                python-version: '3.12'
+            - name: Build image
+              run: |
+                docker build -t scoring-model-api .
+                docker save -o scoring-model-api.tar scoring-model-api
+            - name: Copy image to EC2
+              uses: appleboy/scp-action@v1
+              with:
+                host: ${{ secrets.EC2_HOST }}
+                username: ubuntu
+                key: ${{ secrets.EC2_SSH_KEY }}
+                source: "./scoring-model-api.tar"
+                target: "/home/ubuntu"
+            - name: Configure EC2 and run image
+              uses: appleboy/ssh-action@v1.2.5
+              with:
+                host: ${{ secrets.EC2_HOST }}
+                username: ubuntu
+                key: ${{ secrets.EC2_SSH_KEY }}
+                command_timeout: 15m
+                script: |
+                    sudo apt update && sudo apt install -y docker.io
+                    echo "sudo docker load -i scoring-model-api.tar"
+                    sudo docker load -i scoring-model-api.tar
+                    echo "sudo docker run -d -p 8084:8084 --name scoring-model-container scoring-model-api"
+                    sudo docker run -d -p 8084:8084 --name scoring-model-container scoring-model-api
